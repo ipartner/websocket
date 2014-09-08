@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	ws "github.com/gorilla/websocket"
+	"github.com/ipartner/websocket"
 	"net/http"
-	"websockets"
 )
 
 var HUB = websocket.Hub{
