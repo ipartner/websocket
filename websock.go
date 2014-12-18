@@ -12,6 +12,10 @@ type Connection struct {
 
 	// Buffered channel of outbound messages.
 	Send chan []byte
+
+	// Interface para data misc usada por registro y desregistro
+
+	UserData interface{}
 }
 
 func (c *Connection) Reader(h *Hub, funcrecv func(*Hub, []byte)) {
@@ -28,13 +32,26 @@ func (c *Connection) Reader(h *Hub, funcrecv func(*Hub, []byte)) {
 }
 
 func (c *Connection) Writer() {
-	for message := range c.Send {
-		err := c.Ws.WriteMessage(websocket.TextMessage, message)
+L:
+	for {
+		select {
+		case message := <-c.Send:
+			err := c.Ws.WriteMessage(websocket.TextMessage, message)
+			if err != nil {
+				fmt.Printf("Error escribiendo. esto matara al writer")
+				break L
+
+			}
+
+		}
+	}
+
+	/*for message := range c.Send {
 		if err != nil {
 			fmt.Printf("Error escribiendo. esto matara al writer")
 			break
 		}
-	}
+	}*/
 	c.Ws.Close()
 }
 
@@ -49,6 +66,8 @@ type Hub struct {
 
 	FuncionBr func(*Hub, interface{})
 
+	FuncRegister   func(*Connection)
+	FuncUnregister func(*Connection)
 	// registro de nuevos sockets
 	Register chan *Connection
 
@@ -61,15 +80,26 @@ func (hb *Hub) Run() {
 	for {
 		select {
 		case c := <-hb.Register:
+			fmt.Printf("Regitro %p\n", c)
 			hb.Connections[c] = true
+			hb.FuncRegister(c)
+			fmt.Printf("Fin Regitro %p\n", c)
+
 		case c := <-hb.Unregister:
+			fmt.Printf("DesRegitro %p\n", c)
+
+			hb.FuncUnregister(c)
 			if _, ok := hb.Connections[c]; ok {
 				delete(hb.Connections, c)
 				close(c.Send)
 			}
+			fmt.Printf("Fin DesRegitro %p\n", c)
+
 		case m := <-hb.Broadcast:
+			fmt.Printf("inicio BR %p\n")
 
 			hb.FuncionBr(hb, m)
+			fmt.Printf("Fin Br %p\n")
 
 		case pm := <-hb.Ping: //lo que llega al canal ping se envia a todos lados
 			fmt.Printf("Nuevo mensaje para todos ping\n")
