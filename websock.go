@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type InfoSocket struct {
+	Token            string
+	Tipo             string
+	SoloCambioEstado bool
+	Uuid             string
+}
+
 type Connection struct {
 	// The websocket connection.
 	Ws *websocket.Conn
