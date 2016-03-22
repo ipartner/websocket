@@ -3,8 +3,8 @@ package websocket
 import (
 	"fmt"
 	"github.com/gorilla/websocket"
+	"io/ioutil"
 	"log"
-	"os"
 	"time"
 )
 
@@ -83,13 +83,13 @@ type Hub struct {
 	// desregistro
 	Unregister chan *Connection
 
-	Log *log
+	Log *log.Logger
 }
 
 func (hb *Hub) Run() {
 
 	if hb.Log == nil {
-		hb.Log = log.New(os.DevNull, "log-websocket", 0)
+		hb.Log = log.New(ioutil.Discard, "log-websocket", 0)
 	}
 
 	for {
