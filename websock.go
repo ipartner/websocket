@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"fmt"
+	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/gorilla/websocket"
 	"time"
 )
@@ -11,6 +12,7 @@ type InfoSocket struct {
 	Tipo             string
 	SoloCambioEstado bool
 	Uuid             string
+	Id               string
 }
 
 type Connection struct {
@@ -23,6 +25,9 @@ type Connection struct {
 	// Interface para data misc usada por registro y desregistro
 
 	UserData interface{}
+
+	//
+	Wresponse *rest.ResponseWriter
 }
 
 func (c *Connection) Reader(h *Hub, funcrecv func(*Hub, []byte)) {
