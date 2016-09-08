@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/gorilla/websocket"
+	"io/ioutil"
+	"log"
 	"time"
 )
 
@@ -85,36 +87,42 @@ type Hub struct {
 
 	// desregistro
 	Unregister chan *Connection
+
+	Log *log.Logger
 }
 
 func (hb *Hub) Run() {
 
+	if hb.Log == nil {
+		hb.Log = log.New(ioutil.Discard, "log-websocket", 0)
+	}
+
 	for {
 		select {
 		case c := <-hb.Register:
-			fmt.Printf("Regitro %p\n", c)
+			hb.Log.Printf("Regitro %p\n", c)
 			hb.Connections[c] = true
 			hb.FuncRegister(c)
-			fmt.Printf("Fin Regitro %p\n", c)
+			hb.Log.Printf("Fin Regitro %p\n", c)
 
 		case c := <-hb.Unregister:
-			fmt.Printf("DesRegitro %p\n", c)
+			hb.Log.Printf("DesRegitro %p\n", c)
 
 			hb.FuncUnregister(c)
 			if _, ok := hb.Connections[c]; ok {
 				delete(hb.Connections, c)
 				close(c.Send)
 			}
-			fmt.Printf("Fin DesRegitro %p\n", c)
+			hb.Log.Printf("Fin DesRegitro %p\n", c)
 
 		case m := <-hb.Broadcast:
-			fmt.Printf("inicio BR %p\n")
+			hb.Log.Printf("inicio BR %p\n")
 
 			hb.FuncionBr(hb, m)
-			fmt.Printf("Fin Br %p\n")
+			hb.Log.Printf("Fin Br %p\n")
 
 		case pm := <-hb.Ping: //lo que llega al canal ping se envia a todos lados
-			fmt.Printf("Nuevo mensaje para todos ping\n")
+			hb.Log.Printf("Nuevo mensaje para todos ping\n")
 			for c := range hb.Connections {
 				c.Send <- pm
 			}
