@@ -11,6 +11,7 @@ import (
 
 type InfoSocket struct {
 	Token            string
+	Empresa          *int64
 	Tipo             string
 	SoloCambioEstado bool
 	Uuid             string
