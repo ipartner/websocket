@@ -16,6 +16,7 @@ type InfoSocket struct {
 	SoloCambioEstado bool
 	Uuid             string
 	Id               string
+	UsuarioId        int64
 }
 
 type Connection struct {
