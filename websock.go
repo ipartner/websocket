@@ -1,12 +1,12 @@
 package websocket
 
 import (
-	"fmt"
-	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/gorilla/websocket"
 	"io/ioutil"
 	"log"
 	"time"
+
+	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/gorilla/websocket"
 )
 
 type InfoSocket struct {
@@ -38,7 +38,6 @@ func (c *Connection) Reader(h *Hub, funcrecv func(*Hub, []byte)) {
 	for {
 		_, message, err := c.Ws.ReadMessage()
 		if err != nil {
-			fmt.Printf("Error de lectura del cliente socket cerrado?%s\n", err)
 			break
 		}
 		funcrecv(h, message)
@@ -54,7 +53,6 @@ L:
 		case message := <-c.Send:
 			err := c.Ws.WriteMessage(websocket.TextMessage, message)
 			if err != nil {
-				fmt.Printf("Error escribiendo. esto matara al writer")
 				break L
 
 			}
